@@ -1,5 +1,6 @@
 // Package slices contains utility functions for working with slices.
-// It adds the ability to index from the right end of a slice using negative integers.
+// It adds the ability to index from the right end of a slice using negative integers;
+// for example, Get(s, -1) is the same as s[len(s)-1].
 package slices
 
 // Get gets the idx'th element of s.
@@ -31,6 +32,7 @@ func Append[T any](s []T, vals ...T) []T {
 
 // Insert inserts the given values at the idx'th location in s and returns the result.
 // After the insert, the first new value has position idx.
+//
 // If idx < 0, it counts from the end of s.
 //
 // The input slice is modified.
@@ -58,6 +60,7 @@ func insert[T any](s []T, idx int, vals ...T) []T {
 
 // ReplaceN replaces the n values of s beginning at position idx with the given values.
 // After the replace, the first new value has position idx.
+//
 // If idx < 0, it counts from the end of s.
 //
 // The input slice is modified.
@@ -88,8 +91,7 @@ func replaceN[T any](s []T, idx, n int, vals ...T) []T {
 // After the replace, the first new value has position from.
 //
 // If from < 0 it counts from the end of s.
-// If to < 0 it counts from the end of s.
-// If to == 0, that means len(s).
+// If to <= 0 it counts from the end of s.
 //
 // The input slice is modified.
 func ReplaceTo[T any](s []T, from, to int, vals ...T) []T {
@@ -128,8 +130,7 @@ func removeN[T any](s []T, idx, n int) []T {
 // It returns the result.
 //
 // If from < 0 it counts from the end of s.
-// If to < 0 it counts from the end of s.
-// If to == 0, that means len(s).
+// If to <= 0 it counts from the end of s.
 //
 // The input slice is modified.
 //
@@ -179,8 +180,7 @@ func SliceN[T any](s []T, idx, n int) []T {
 // SliceTo returns the elements of s beginning at position from and ending before position to.
 //
 // If from < 0 it counts from the end of s.
-// If to < 0 it counts from the end of s.
-// If to == 0, that means len(s).
+// If to <= 0 it counts from the end of s.
 func SliceTo[T any](s []T, from, to int) []T {
 	if from < 0 {
 		from += len(s)
