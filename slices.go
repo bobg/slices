@@ -1,6 +1,10 @@
 // Package slices contains utility functions for working with slices.
-// It adds the ability to index from the right end of a slice using negative integers;
-// for example, Get(s, -1) is the same as s[len(s)-1].
+// It encapsulates hard-to-remember idioms for inserting and removing elements;
+// it adds the ability to index from the right end of a slice using negative integers
+// (for example, Get(s, -1) is the same as s[len(s)-1]),
+// and it includes Map, Filter,
+// and a few other such functions
+// for processing slice elements with callbacks.
 package slices
 
 // Get gets the idx'th element of s.
@@ -191,4 +195,89 @@ func SliceTo[T any](s []T, from, to int) []T {
 		to = len(s)
 	}
 	return s[from:to]
+}
+
+// Each runs a function on each item of a slice,
+// passing the index and the item to the function.
+// If any call to the function returns an error,
+// Each stops looping and exits with the error.
+func Each[T any](s []T, f func(int, T) error) error {
+	for i, val := range s {
+		if err := f(i, val); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// Map runs a function on each item of a slice,
+// accumulating results in a new slice.
+// If any call to the function returns an error,
+// Map stops looping and exits with the error.
+func Map[T, U any](s []T, f func(int, T) (U, error)) ([]U, error) {
+	result := make([]U, 0, len(s))
+	for i, val := range s {
+		u, err := f(i, val)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, u)
+	}
+	return result, nil
+}
+
+// Accum accumulates the result of repeatedly applying a function to the elements of a slice.
+//
+// If the slice has length 0, the result is the zero value of type T.
+// If the slice has length 1, the result s[0].
+// Otherwise, the result is R[len(s)-1],
+// where R[0] is s[0]
+// and R[n+1] = f(R[n], s[n+1]).
+func Accum[T any](s []T, f func(T, T) (T, error)) (T, error) {
+	if len(s) == 0 {
+		var zero T
+		return zero, nil
+	}
+	result := s[0]
+	for i := 1; i < len(s); i++ {
+		var err error
+		result, err = f(result, s[i])
+		if err != nil {
+			return result, err
+		}
+	}
+	return result, nil
+}
+
+// Filter calls a predicate for each element of a slice,
+// returning a slice of those elements for which the predicate returned true.
+func Filter[T any](s []T, f func(T) (bool, error)) ([]T, error) {
+	var result []T
+	for _, val := range s {
+		ok, err := f(val)
+		if err != nil {
+			return nil, err
+		}
+		if !ok {
+			continue
+		}
+		result = append(result, val)
+	}
+	return result, nil
+}
+
+// Group partitions the elements of a slice into groups.
+// It does this by calling a grouping function on each element,
+// which produces a grouping key.
+// The result is a map of group keys to slices of elements having that key.
+func Group[T any, K comparable](s []T, f func(T) (K, error)) (map[K][]T, error) {
+	result := make(map[K][]T)
+	for _, val := range s {
+		key, err := f(val)
+		if err != nil {
+			return nil, err
+		}
+		result[key] = append(result[key], val)
+	}
+	return result, nil
 }

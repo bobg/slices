@@ -8,8 +8,10 @@
 This is slices,
 a collection of generic utility functions for operating on Go slices.
 
-This collection is useful primarily as a way to encapsulate the Go idioms for inserting and removing slice elements,
-which can be hard to remember.
+This collection is useful in three ways:
 
-Secondarily it introduces negative-integer indexing.
-`Get(s, -1)` on a slice `s` is the same as `s[len(s)-1]`.
+- It encapsulates hard-to-remember Go idioms for inserting and removing elements to and from the middle of a slice;
+- It adds the ability to index from the right end of a slice using negative integers
+  (for example, Get(s, -1) is the same as s[len(s)-1]); and
+- It includes `Map`, `Filter`, and a few other such functions
+  for processing slice elements with callbacks
